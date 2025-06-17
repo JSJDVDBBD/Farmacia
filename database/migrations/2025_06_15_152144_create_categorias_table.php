@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cortes_caja', function (Blueprint $table) {
-    $table->id();
-    $table->decimal('total_dia', 8, 2);
-    $table->date('fecha_corte');
-    $table->timestamps();
-
-
-        });
+        Schema::create('categorias', function (Blueprint $table) {
+        $table->id();
+        $table->string('nombre');  // Asegúrate que esta columna existe
+        $table->text('description')->nullable();
+        $table->timestamps();
+    });
+    
     }
 
     /**
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cortes_caja');
+        Schema::dropIfExists('categorias');
     }
 };

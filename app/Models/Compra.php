@@ -4,15 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Venta extends Model
+class Compra extends Model
 {
     protected $fillable = [
-        'folio', 'fecha_venta', 'subtotal', 'total', 'metodo_pago', 'estado', 'user_id'
+        'fecha_compra', 'numero_factura', 'total', 'metodo_pago', 'estado', 'user_id'
     ];
 
     public function detalles()
     {
-        return $this->hasMany(DetalleVenta::class);
+        return $this->hasMany(DetalleCompra::class);
     }
 
     public function usuario()

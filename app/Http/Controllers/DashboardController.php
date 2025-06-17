@@ -1,40 +1,53 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Medicamento;
 use App\Models\Venta;
+use App\Models\Alerta;
+use App\Models\CorteCaja;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        // Totales
         $total_medicamentos = Medicamento::count();
+        $total_alertas_activas = Alerta::where('estado', 'activa')->count();
+        $ventas_hoy = Venta::whereDate('fecha_venta', today())->sum('total');
+        $ventas_mes = Venta::whereMonth('fecha_venta', now()->month)->sum('total');
 
-        $productos_a_caducar = Medicamento::where('fecha_caducidad', '<=', now()->addDays(7))->count();
+        // Últimas alertas
+        $ultimas_alertas = Alerta::with('medicamento')
+            ->where('estado', 'activa')
+            ->latest()
+            ->take(5)
+            ->get();
 
-        $productos_stock_bajo = Medicamento::where('cantidad', '<', 10)->count();
+        // Últimos cortes
+        $ultimos_cortes = CorteCaja::latest()->take(5)->get();
 
-        $ventas_dia = Venta::whereDate('fecha_venta', today())->sum('total_venta');
+        // Últimas ventas
+        $ultimas_ventas = Venta::latest()->with('usuario')->take(5)->get();
 
-        $ventas_ultimos_7_dias = Venta::selectRaw('DATE(fecha_venta) as fecha, SUM(total_venta) as total')
+        // Gráfico de ventas (últimos 7 días)
+        $ventas_ultimos_7_dias = Venta::selectRaw('DATE(fecha_venta) as fecha, SUM(total) as total')
             ->where('fecha_venta', '>=', now()->subDays(6))
             ->groupBy('fecha')
             ->orderBy('fecha')
             ->get();
 
-        $ultimas_alertas = Medicamento::where('cantidad', '<', 10)
-            ->orWhere('fecha_caducidad', '<=', now()->addDays(7))
-            ->limit(5)
-            ->get();
-
         return view('dashboard', compact(
             'total_medicamentos',
-            'productos_a_caducar',
-            'productos_stock_bajo',
-            'ventas_dia',
-            'ventas_ultimos_7_dias',
-            'ultimas_alertas'
+            'total_alertas_activas',
+            'ventas_hoy',
+            'ventas_mes',
+            'ultimas_alertas',
+            'ultimas_ventas',
+            'ultimos_cortes',
+            'ventas_ultimos_7_dias'
         ));
     }
 }
