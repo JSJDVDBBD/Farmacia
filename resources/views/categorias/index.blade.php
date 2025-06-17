@@ -6,17 +6,6 @@
     <div class="w-2/3">
         <h1 class="text-2xl font-bold mb-6 text-gray-800">Panel de Administración - Medicamentos</h1>
 
-        @if (session('success'))
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded">
-                <div class="flex items-center">
-                    <svg class="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                    <span class="font-medium">{{ session('success') }}</span>
-                </div>
-            </div>
-        @endif
-
         <!-- Buscador mejorado -->
         <div class="mb-8 bg-white rounded-lg shadow-md overflow-hidden">
             <div class="bg-blue-600 px-4 py-3">
@@ -44,7 +33,6 @@
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200" id="search-results">
@@ -64,19 +52,67 @@
                                         {{ ucfirst($med->estado) }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <a href="{{ route('medicamentos.edit', $med->id) }}" class="text-blue-600 hover:text-blue-900 mr-2">Editar</a>
-                                    <form action="{{ route('medicamentos.destroy', $med->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('¿Estás seguro de eliminar este medicamento?')">Eliminar</button>
-                                    </form>
-                                </td>
                             </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+
+        <!-- Tabla completa de medicamentos -->
+        @if (session('success'))
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded">
+                <div class="flex items-center">
+                    <svg class="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="font-medium">{{ session('success') }}</span>
+                </div>
+            </div>
+        @endif
+
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="flex justify-between items-center px-6 py-4 bg-gray-50 border-b">
+                <h2 class="text-lg font-semibold text-gray-800">Listado Completo de Medicamentos</h2>
+            </div>
+            <div class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-50">
+        <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Comercial</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Imagen</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Precio</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+        </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+        @foreach($medicamentos as $med)
+        <tr>
+            <td class="px-6 py-4 whitespace-nowrap">{{ $med->codigo_barras }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ $med->nombre_comercial }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <img src="{{ $med->imagen_url }}" alt="Imagen" class="h-12 w-12 object-cover rounded">
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                    {{ $med->stock_actual < $med->stock_minimo ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
+                    {{ $med->stock_actual }}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">${{ number_format($med->precio_venta, 2) }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                    {{ $med->estado == 'activo' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' }}">
+                    {{ ucfirst($med->estado) }}
+                </span>
+            </td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
             </div>
         </div>
     </div>
@@ -91,105 +127,75 @@
                 <form action="{{ route('medicamentos.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
-                    @if($errors->any())
-                        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded">
-                            <ul>
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Código de Barras *</label>
-                            <input name="codigo_barras" class="input-field" placeholder="7501001234567" required value="{{ old('codigo_barras') }}">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Código de Barras</label>
+                            <input name="codigo_barras" class="input-field" placeholder="7501001234567" required>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Comercial *</label>
-                                <input name="nombre_comercial" class="input-field" placeholder="Tempra 500mg" required value="{{ old('nombre_comercial') }}">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Comercial</label>
+                                <input name="nombre_comercial" class="input-field" placeholder="Tempra 500mg" required>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Genérico</label>
-                                <input name="nombre_generico" class="input-field" placeholder="Paracetamol" value="{{ old('nombre_generico') }}">
+                                <input name="nombre_generico" class="input-field" placeholder="Paracetamol">
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Fabricante</label>
-                            <input name="fabricante" class="input-field" placeholder="Fabricante" value="{{ old('fabricante') }}">
+                            <input name="fabricante" class="input-field" placeholder="Fabricante">
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Presentación</label>
-                            <input name="presentacion" class="input-field" placeholder="Tabletas, Jarabe, etc." value="{{ old('presentacion') }}">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Concentración</label>
-                            <input name="concentracion" class="input-field" placeholder="500 mg" value="{{ old('concentracion') }}">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Categoría *</label>
-                            <select name="categoria_id" class="input-field" required>
-                                <option value="">Seleccione una categoría</option>
-                                @foreach($categorias as $categoria)
-                                    <option value="{{ $categoria->id }}" {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>{{ $categoria->nombre }}</option>
-                                @endforeach
-                            </select>
+                            <input name="presentacion" class="input-field" placeholder="Tabletas, Jarabe, etc.">
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Stock Actual *</label>
-                                <input type="number" name="stock_actual" class="input-field" placeholder="80" required value="{{ old('stock_actual') }}">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Stock Actual</label>
+                                <input type="number" name="stock_actual" class="input-field" placeholder="80">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Stock Mínimo *</label>
-                                <input type="number" name="stock_minimo" class="input-field" placeholder="10" required value="{{ old('stock_minimo') }}">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Stock Mínimo</label>
+                                <input type="number" name="stock_minimo" class="input-field" placeholder="10">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Precio Compra *</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Precio Compra</label>
                                 <div class="relative">
                                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
-                                    <input type="number" step="0.01" name="precio_compra" class="input-field pl-7" placeholder="0.00" required value="{{ old('precio_compra') }}">
+                                    <input type="number" step="0.01" name="precio_compra" class="input-field pl-7" placeholder="0.00">
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Precio Venta *</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Precio Venta</label>
                                 <div class="relative">
                                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
-                                    <input type="number" step="0.01" name="precio_venta" class="input-field pl-7" placeholder="0.00" required value="{{ old('precio_venta') }}">
+                                    <input type="number" step="0.01" name="precio_venta" class="input-field pl-7" placeholder="0.00">
                                 </div>
                             </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Caducidad *</label>
-                            <input type="date" name="fecha_caducidad" class="input-field" required min="{{ date('Y-m-d') }}" value="{{ old('fecha_caducidad') }}">
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Ubicación en almacén</label>
-                            <input name="ubicacion" class="input-field" placeholder="Estante A, Nivel 2" value="{{ old('ubicacion') }}">
+                            <input name="ubicacion" class="input-field" placeholder="Estante A, Nivel 2">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
                             <div class="flex space-x-4">
                                 <label class="inline-flex items-center">
-                                    <input type="radio" name="estado" value="activo" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" {{ old('estado', 'activo') == 'activo' ? 'checked' : '' }}>
+                                    <input type="radio" name="estado" value="activo" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
                                     <span class="ml-2 text-sm text-gray-700">Activo</span>
                                 </label>
                                 <label class="inline-flex items-center">
-                                    <input type="radio" name="estado" value="inactivo" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" {{ old('estado') == 'inactivo' ? 'checked' : '' }}>
+                                    <input type="radio" name="estado" value="inactivo" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
                                     <span class="ml-2 text-sm text-gray-700">Inactivo</span>
                                 </label>
                             </div>
@@ -213,7 +219,7 @@
                     </div>
 
                     <div class="flex justify-end space-x-3 mt-6">
-                        <button type="button" class="btn-secondary transform hover:-translate-y-0.5 transition-all duration-200" onclick="resetForm()">
+                        <button type="button" class="btn-secondary transform hover:-translate-y-0.5 transition-all duration-200">
                             <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
@@ -250,12 +256,6 @@
             row.style.display = text.includes(searchTerm) ? '' : 'none';
         });
     });
-
-    // Función para resetear el formulario
-    function resetForm() {
-        document.querySelector('form').reset();
-        document.getElementById('file-name').textContent = 'Ningún archivo seleccionado';
-    }
 </script>
 @endpush
 
